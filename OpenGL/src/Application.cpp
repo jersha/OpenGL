@@ -5,6 +5,24 @@
 #include <fstream>
 #include <sstream>
 
+#define ASSERT(x) if(!(x)) __debugbreak();
+#define GLCall(x) GLClearError();\
+	x;\
+	ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+
+static void GLClearError() {
+	while (GL_NO_ERROR != glGetError());
+}
+
+static bool GLLogCall(const char* function, const char* file, int line) {
+	while (GLenum error = glGetError()) {
+		std::cout << "[OpenGL Error] (" << error << ")" << function <<
+			" " << file << ":" << line << std::endl;
+		return false;
+	}
+	return true;
+}
+
 struct ShaderProgramSource {
 	std::string VertexSource;
 	std::string FragmentSource;
@@ -51,9 +69,9 @@ static unsigned int CompileShader(unsigned int type, const std::string& source) 
 		int length;
 		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
 		char* message = (char*)alloca(length * sizeof(char));
- 		glGetShaderInfoLog(id, length, &length, message);
-		std::cout << "Failed to compile "<<
-			(GL_VERTEX_SHADER == type ? "Vertex" : "fragment") <<"Shader!" << std::endl;
+		glGetShaderInfoLog(id, length, &length, message);
+		std::cout << "Failed to compile " <<
+			(GL_VERTEX_SHADER == type ? "Vertex" : "fragment") << "Shader!" << std::endl;
 		std::cout << message << std::endl;
 		glDeleteShader(id);
 		return 0;
@@ -136,19 +154,19 @@ int main(void)
 	while (!glfwWindowShouldClose(window))
 	{
 		/* Render here */
-		glClear(GL_COLOR_BUFFER_BIT);
+		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr));
 
 		/* Swap front and back buffers */
-		glfwSwapBuffers(window);
+		GLCall(glfwSwapBuffers(window));
 
 		/* Poll for and process events */
-		glfwPollEvents();
+		GLCall(glfwPollEvents());
 	}
 
 	glDeleteProgram(shader);
 
-	glfwTerminate();
+	GLCall(glfwTerminate());
 	return 0;
-} 
+}
