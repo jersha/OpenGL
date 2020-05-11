@@ -80,11 +80,13 @@ int main(void)
 		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 		
 		Shader shader("res/shaders/Basic.shader");
-		shader.Bind();
+		shader.Bind(); 
 
-		Texture texture("res/textures/steve.png");
-		texture.Bind();
-		shader.SetUniform1i("u_Texture", 0);
+		Texture textureA("res/textures/steve.png");
+		textureA.Bind();
+		shader.SetUniform1i("u_Texture", 0); 
+		Texture textureB("res/textures/musk.png");
+		textureB.Bind();
 
 		va.Unbind();
 		vb.Unbind();
@@ -113,6 +115,7 @@ int main(void)
 			{
 				glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
 				glm::mat4 mvp = proj * view * model;
+				textureA.Bind();
 				shader.Bind();
 				shader.SetUniformMat4f("u_MVP", mvp);
 				renderer.Draw(va, ib, shader);
@@ -120,6 +123,7 @@ int main(void)
 			{
 				glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
 				glm::mat4 mvp = proj * view * model;
+				textureB.Bind();
 				shader.Bind();
 				shader.SetUniformMat4f("u_MVP", mvp);
 				renderer.Draw(va, ib, shader);
